@@ -11,6 +11,11 @@ const config = {
   prefix: "",
   theme: {
     extend: {
+      colors: {
+        "custom-blue": "rgb(7, 89, 133)",
+        "custom-blue-light": "rgba(7, 89, 133, 0.1)",
+        "custom-blue-medium": "rgba(7, 89, 133, 0.5)",
+      },
       fontFamily: {
         vazir: ["Vazir"],
         tanha: ["tanha"],

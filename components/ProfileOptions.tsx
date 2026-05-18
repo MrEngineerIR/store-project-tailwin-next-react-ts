@@ -58,7 +58,7 @@ export const ProfileOptions = ({ user }: ProfileOptionParamsType) => {
           <Link href={"/account"}>حساب کاربری</Link>
         </div>
 
-        {user?.isAdmin && (
+        {user?.email && (
           <div hidden={user?.isAdmin} className="text-center">
             <Link href={"/account/pm"}>پیام به پشتیبانی</Link>
           </div>

@@ -57,7 +57,8 @@ const getUser = async (): Promise<UserType | null> => {
   if (user) {
     user.password = "";
   }
-  return user || null;
+  const plainUser: UserType = JSON.parse(JSON.stringify(user));
+  return plainUser || null;
 };
 
 export { protectRout, getUser };

@@ -6,7 +6,7 @@ import { User } from "@/models/User";
 import { revalidatePath } from "next/cache";
 
 const addOrder = async (newOrder: orderType) => {
-  await connectDB;
+  await connectDB(); // ← Fix: add parentheses! connectDB is a function
   const date = new Date();
   newOrder.createdAt = `${date.getFullYear()}/${
     date.getMonth() + 1
@@ -15,13 +15,12 @@ const addOrder = async (newOrder: orderType) => {
   if (user?.orders?.some((order) => order.productId === newOrder.productId)) {
     return undefined;
   }
-  //order should set on user model
+
   await User.findOneAndUpdate(
     { _id: newOrder.userId },
     { $set: { orders: [...user!.orders!, newOrder] } },
   );
 
-  //orde should sit on order model
   const newOrderDb = new Order({
     userId: newOrder.userId,
     productId: newOrder.productId,
@@ -30,7 +29,20 @@ const addOrder = async (newOrder: orderType) => {
     price: newOrder.price,
     isPaid: false,
   });
-  return await newOrderDb.save();
+
+  const savedOrder = await newOrderDb.save();
+
+  // ✅ Return a plain object, not the Mongoose document
+  return {
+    _id: savedOrder._id.toString(),
+    userId: savedOrder.userId,
+    productId: savedOrder.productId,
+    productName: savedOrder.productName,
+    quantity: savedOrder.quantity,
+    price: savedOrder.price,
+    isPaid: savedOrder.isPaid,
+    createdAt: savedOrder.createdAt,
+  };
 };
 
 export default addOrder;

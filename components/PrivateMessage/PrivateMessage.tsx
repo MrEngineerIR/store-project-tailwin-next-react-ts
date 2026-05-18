@@ -122,7 +122,7 @@ const PrivateMessage = () => {
               item.from === "admin"
                 ? "bg-blue-400 text-black self-end"
                 : "bg-sky-600 text-white self-start"
-            } w-auto max-w-[70%] p-2 rounded-md shadow-md break-words whitespace-normal mb-60`}
+            } w-auto max-w-[70%] p-2 rounded-md shadow-md break-words whitespace-normal `}
           >
             {item.text}{" "}
             {item.from === "user" ? (

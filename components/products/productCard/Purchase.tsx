@@ -13,33 +13,41 @@ const Purchase = ({ product }: { product: productType }) => {
   const purchaseButtonRef = useRef<HTMLButtonElement>(null);
   const { setNotificationState } = useContext(NotificationActionsContext);
   const client = useQueryClient();
+
   function handlePurchaseClick() {
     setIsAddingOrder((prev) => !prev);
   }
+
   async function handleAddOrder() {
     setNotificationState({
       message: "در حال بررسی",
       state: notificationStateEnum.pending,
     });
-    const user: UserType | undefined = client.getQueryData(["user"]);
 
-    if (!user) {
+    const userFromCache: UserType | undefined = client.getQueryData(["user"]);
+
+    if (!userFromCache) {
       setNotificationState({
         message: "ابتدا وارد حساب کاربری شوید",
         state: notificationStateEnum.failed,
       });
-      setIsAddingOrder((prev) => false);
+      setIsAddingOrder(false);
       return;
     }
 
+    // ✅ DON'T serialize the whole object
+    // Just extract the values you need directly from the product prop
+
+    const userOrders = userFromCache.orders || [];
+
     if (
-      user.orders?.some((order: orderType) => order.productId === product._id)
+      userOrders.some((order: orderType) => order.productId === product._id)
     ) {
       setNotificationState({
         message: "قبلا این کالا را انتخاب کرده‌اید به سبد سفارشات بروید",
         state: notificationStateEnum.failed,
       });
-      setIsAddingOrder((prev) => !prev);
+      setIsAddingOrder(false);
       return;
     }
 
@@ -47,7 +55,7 @@ const Purchase = ({ product }: { product: productType }) => {
       productId: product._id!,
       productName: product.name,
       quantity: 1,
-      userId: user._id,
+      userId: userFromCache._id,
       price: product.price,
     });
 
@@ -55,7 +63,8 @@ const Purchase = ({ product }: { product: productType }) => {
       message: "به سبد افزوده شد",
       state: notificationStateEnum.success,
     });
-    setIsAddingOrder((prev) => false);
+
+    setIsAddingOrder(false);
   }
   return (
     <>
@@ -70,25 +79,34 @@ const Purchase = ({ product }: { product: productType }) => {
       >
         <CgShoppingCart />
         {isAddingOrder && (
-          <section
-            className={
-              " absolute w-full flex text-black bg-black/20  justify-between text-center  -top-[50px]"
-            }
-          >
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddOrder();
-              }}
-              className="text-white   backdrop-blur-3xl  flex-initial rounded-r p-2 w-full h-full text-nowrap"
-            >
-              افزودن به سبد و ادامه خرید
+          <span className=" absolute -top-[55px] min-w-96 ">
+            <div className="grid grid-cols-2 bg-[rgb(4,45,69)] h-12 rounded-md ">
+              <section
+                className={
+                  "w-full flex hover:bg-white/10 hover:rounded-md justify-between text-center"
+                }
+              >
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddOrder();
+                  }}
+                  className="text-white rounded-l p-2 w-full grid place-items-center text-nowrap"
+                >
+                  افزودن به سبد و ادامه خرید
+                </div>
+              </section>
+              <section
+                className={
+                  "w-full flex hover:bg-white/10 hover:rounded-md justify-between text-center"
+                }
+              >
+                <div className="text-white rounded-l p-2 w-full grid place-items-center text-nowrap">
+                  تسویه و تکمیل خرید
+                </div>
+              </section>
             </div>
-            <section className="w-[1px] h-[80%]"></section>
-            <div className="text-white  backdrop-blur-3xl rounded-l p-2 w-full h-full text-nowrap">
-              تسویه و تکمیل خرید
-            </div>
-          </section>
+          </span>
         )}
       </button>
     </>

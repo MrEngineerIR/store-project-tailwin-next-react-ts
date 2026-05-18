@@ -1,70 +1,41 @@
 "use client";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext } from "react";
 import {
-  NotificationActionsContext,
   NotificationDisplayContext,
   notificationStateEnum,
-} from "../notification-context/NotificationProvider";
+} from "@/components/notification-context/NotificationProvider";
 
-const Notification = () => {
-  const { setNotificationState } = useContext(NotificationActionsContext);
+const NotificationToast = () => {
   const { message, state } = useContext(NotificationDisplayContext);
-  const [notificationData, setNotificationData] = useState<{
-    message: string;
-    state: notificationStateEnum;
-    shouldDisplay: boolean;
-  }>({ message, state, shouldDisplay: false });
-  const timerRef = useRef<NodeJS.Timeout>();
 
-  useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+  if (!message || state === notificationStateEnum.null) {
+    return null;
+  }
 
-    if (
-      state === notificationStateEnum.null &&
-      notificationData.shouldDisplay
-    ) {
-      timerRef.current = setTimeout(() => {
-        setNotificationData({
-          message: "",
-          state: notificationStateEnum.null,
-          shouldDisplay: false,
-        });
-      }, 280);
-    }
+  const bgColor =
+    state === notificationStateEnum.success
+      ? "bg-green-500"
+      : state === notificationStateEnum.failed
+        ? "bg-red-500"
+        : "bg-yellow-500";
 
-    if (
-      state !== notificationStateEnum.null &&
-      !notificationData.shouldDisplay
-    ) {
-      setNotificationData({ message, state, shouldDisplay: true });
-    }
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [state, message, notificationData.shouldDisplay]);
+  const icon =
+    state === notificationStateEnum.success
+      ? "✓"
+      : state === notificationStateEnum.failed
+        ? "✗"
+        : "⏳";
 
   return (
-    notificationData.shouldDisplay && (
+    <div className="fixed top-5 right-5 z-[9999]">
       <div
-        onClick={() =>
-          setNotificationState({
-            message: "",
-            state: notificationStateEnum.null,
-          })
-        }
-        className={`fixed bottom-10 ${state === notificationStateEnum.null ? "animate-popdown" : "animate-popup"}  right-10 w-fit p-2 rounded text-nowrap h-10 text-center flex items-center justify-center cursor-pointer ${
-          notificationData.state === notificationStateEnum.success
-            ? "bg-green-700"
-            : notificationData.state === notificationStateEnum.failed
-              ? "bg-red-700"
-              : "bg-blue-500"
-        }`}
+        className={`${bgColor} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[250px] animate-in slide-in-from-top-2 fade-in duration-300`}
       >
-        <h1 className="text-xl">{notificationData.message}</h1>
+        <span className="text-xl font-bold">{icon}</span>
+        <span className="text-sm font-medium">{message}</span>
       </div>
-    )
+    </div>
   );
 };
 
-export default Notification;
+export default NotificationToast;

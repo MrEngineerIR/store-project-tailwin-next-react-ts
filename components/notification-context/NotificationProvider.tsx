@@ -5,7 +5,6 @@ import React, {
   useMemo,
   useCallback,
   useRef,
-  MutableRefObject,
 } from "react";
 
 export type notificationType = {
@@ -33,19 +32,16 @@ export type NotificationActionsContextType = {
 };
 
 const initialDisplayValue: NotificationDisplayContextType = {
-  message: "در حال انجام",
+  message: "",
   state: notificationStateEnum.null,
 };
 
 export const NotificationDisplayContext =
   createContext<NotificationDisplayContextType>(initialDisplayValue);
 
-const dummySetNotification: NotificationActionsContextType["setNotificationState"] =
-  () => {};
-
 export const NotificationActionsContext =
   createContext<NotificationActionsContextType>({
-    setNotificationState: dummySetNotification,
+    setNotificationState: () => {},
   });
 
 export const NotificationContextProvider = ({
@@ -57,41 +53,51 @@ export const NotificationContextProvider = ({
     message: "",
     state: notificationStateEnum.null,
   });
-  const timerIdRef = useRef<NodeJS.Timeout>();
+  const timerIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSetNotification = useCallback(
+  const setNotification = useCallback(
     ({ message, state }: { message: string; state: notificationStateEnum }) => {
-      setNotificationState({ message: "", state: notificationStateEnum.null });
-      setNotificationState({ message: message, state: state });
-      timerIdRef.current = setTimeout(() => {
-        setNotificationState({
-          message: "",
-          state: notificationStateEnum.null,
-        });
-      }, 3000);
+      // Clear previous timeout
+      if (timerIdRef.current) {
+        clearTimeout(timerIdRef.current);
+        timerIdRef.current = null;
+      }
+
+      // Set new notification
+      setNotificationState({ message, state });
+
+      // Auto clear after 3 seconds
+      if (state !== notificationStateEnum.null && message) {
+        timerIdRef.current = setTimeout(() => {
+          setNotificationState({
+            message: "",
+            state: notificationStateEnum.null,
+          });
+          timerIdRef.current = null;
+        }, 3000);
+      }
     },
     [],
   );
 
-  const ctxDisplayValue = useMemo<NotificationDisplayContextType>(
+  const displayValue = useMemo(
     () => ({
       message: notificationState.message,
       state: notificationState.state,
     }),
-    [notificationState],
+    [notificationState.message, notificationState.state],
   );
 
-  // Memoize the Actions Value: The function reference is stable due to useCallback.
-  const ctxActionsValue = useMemo<NotificationActionsContextType>(
+  const actionsValue = useMemo(
     () => ({
-      setNotificationState: handleSetNotification,
+      setNotificationState: setNotification,
     }),
-    [handleSetNotification],
+    [setNotification],
   );
 
   return (
-    <NotificationDisplayContext.Provider value={ctxDisplayValue}>
-      <NotificationActionsContext.Provider value={ctxActionsValue}>
+    <NotificationDisplayContext.Provider value={displayValue}>
+      <NotificationActionsContext.Provider value={actionsValue}>
         {children}
       </NotificationActionsContext.Provider>
     </NotificationDisplayContext.Provider>

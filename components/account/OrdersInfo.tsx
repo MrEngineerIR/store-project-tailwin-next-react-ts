@@ -11,16 +11,18 @@ const OrdersInfo = async () => {
   return userData.orders!.map((order, key) => {
     console.log(order.createdAt);
     return (
-      <div key={order.productId} className="relative mt-10">
-        <h1 className="text-center absolute -top-[50px] right-[40%]">
-          سفارشات
-        </h1>
+      <div
+        key={order.productId}
+        className="  grid place-items-center bg-white/10 p-2 rounded h-full "
+      >
+        <h1>سفارشات</h1>
         <table className="border-2 w-full border-collapse my-20 flex-wrap text-center">
           <thead>
             <tr>
               <td className="border-white border-2 min-w-fit ">شماره</td>
               <td className="border-white border-2 ">تاریخ ثبت سفارش</td>
               <td className="border-white border-2 ">مشخصات</td>
+              <td className="border-white border-2 ">تعداد</td>
               <td className="border-white border-2 ">تاریخ تحویل</td>
             </tr>
           </thead>
@@ -28,9 +30,8 @@ const OrdersInfo = async () => {
             <tr>
               <td className="border-white border-2 min-w-fit">{key}</td>
               <td className="border-white border-2">{order.createdAt}</td>
-              <td className="border-white border-2">
-                {order.productName}/{order.quantity}
-              </td>
+              <td className="border-white border-2">{order.productName}</td>
+              <td>{order.quantity}</td>
               <td className="border-white border-2">ارسال از 40 روز</td>
             </tr>
           </tbody>

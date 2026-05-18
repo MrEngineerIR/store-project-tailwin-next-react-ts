@@ -1,17 +1,22 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { Fragment } from "react";
-
+import Image from "next/image";
 const CardBody = ({ product }: { product: productType }) => {
   const rout = useRouter();
   return (
-    <div className="mb-20">
-      <img
-        alt={product.name}
-        src={product.image}
-        className="w-full rounded"
-        onError={(e) => console.error("Image load error:", e)}
-      />
+    <div className="mb-5">
+      <div className="relative w-full aspect-[4/3] bg-gray-100">
+        <div className="relative w-full h-full">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 400px"
+          />
+        </div>
+      </div>
 
       <button
         onClick={() => rout.push(`/products/${product._id}`)}

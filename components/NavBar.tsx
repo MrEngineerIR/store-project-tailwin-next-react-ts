@@ -31,11 +31,14 @@ const NavBar = () => {
   console.log(user?.email, isError);
   const dispatch = useDispatch<AppDispatch>();
   const path = usePathname();
+
   useEffect(() => {
     if (!user) return;
     user.createdAt = undefined;
+
     dispatch(setUser({ user }));
   }, [user]);
+
   return (
     <div className="flex items-center min-[641px]:justify-between max-[650px]:justify-center bg-sky-950 min-w-full max-w-fit h-30 px-2 ">
       <div className="sm:flex items-center gap-x-2 hidden">

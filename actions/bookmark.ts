@@ -12,13 +12,36 @@ const getUserBookmarks = async (email: string): Promise<string[] | null> => {
 type HandleBookProductResult = {
   isBooked: boolean;
 };
+
 const HandleBookProduct = async (
   productId: string,
   email: string,
 ): Promise<HandleBookProductResult> => {
   await connectDB();
+
+  // ✅ Add validation
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  if (!productId) {
+    throw new Error("Product ID is required");
+  }
+
   try {
     const user = await User.findOne({ email: email });
+
+    // ✅ CHECK IF USER EXISTS FIRST
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // ✅ Ensure bookmarks array exists (optional but safe)
+    if (!user.bookmarks) {
+      user.bookmarks = [];
+    }
+
+    // Now safely access user.bookmarks
     if (user.bookmarks.some((item: string) => item === productId)) {
       const newBookmarks: string[] = user.bookmarks.filter(
         (item: string) => item !== productId,
@@ -29,6 +52,7 @@ const HandleBookProduct = async (
       );
       return { isBooked: false };
     }
+
     const newBookmarks: string[] = [...user.bookmarks, productId];
     await User.findOneAndUpdate(
       { email: email },
@@ -36,7 +60,8 @@ const HandleBookProduct = async (
     );
     return { isBooked: true };
   } catch (error: any) {
-    throw new Error(error.message);
+    console.error("HandleBookProduct error:", error);
+    throw new Error(error.message || "Failed to update bookmarks");
   }
 };
 
