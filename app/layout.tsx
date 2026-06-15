@@ -18,7 +18,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   });
 
   return (
-    <html className="font-tanha" dir="rtl">
+    <html className="font-tanha " dir="rtl">
       <body id="body">
         <QueryClientProvider client={queryClient}>
           <NotificationContextProvider>

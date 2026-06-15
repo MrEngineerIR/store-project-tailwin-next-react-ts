@@ -88,10 +88,10 @@ const Auth = ({ loginMode }: { loginMode: string }) => {
                   required
                 />
               </div>
-              <button className="w-full text-center bg-white/5 hover:bg-white/10 rounded h-10">
+              <button className="w-full text-center bg-white/5 hover:bg-white/10  rounded h-10">
                 {loginMode === "signin" ? "ورود" : "ایجاد حساب"}
               </button>
-              <p className="text-sm font-light text-gray-200">
+              <p className="text-sm font-light ">
                 {loginMode === "signin"
                   ? " هنوز حسابی ندارید؟"
                   : "حساب کاربری دارید؟"}{" "}
@@ -104,7 +104,7 @@ const Auth = ({ loginMode }: { loginMode: string }) => {
                   className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                 >
                   {IsSendingData ? (
-                    <p>در حال بررسی</p>
+                    <p className="">در حال بررسی</p>
                   ) : loginMode === "signin" ? (
                     "ایجاد حساب"
                   ) : (
