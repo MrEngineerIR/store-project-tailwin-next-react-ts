@@ -5,6 +5,7 @@ import {
   notificationStateEnum,
 } from "@/components/notification-context/NotificationProvider";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import React, { useContext, useRef, useState } from "react";
 import { CgShoppingCart } from "react-icons/cg";
 
@@ -13,11 +14,17 @@ const Purchase = ({ product }: { product: productType }) => {
   const purchaseButtonRef = useRef<HTMLButtonElement>(null);
   const { setNotificationState } = useContext(NotificationActionsContext);
   const client = useQueryClient();
+  const router = useRouter();
 
   function handlePurchaseClick() {
     setIsAddingOrder((prev) => !prev);
   }
 
+  async function goToBasket() {
+    await handleAddOrder();
+    router.push("/card");
+    router.refresh();
+  }
   async function handleAddOrder() {
     setNotificationState({
       message: "در حال بررسی",
@@ -74,8 +81,8 @@ const Purchase = ({ product }: { product: productType }) => {
         onClick={() => {
           handlePurchaseClick();
         }}
-        disabled={product.quantity === 0 && isAddingOrder}
-        className=" disabled:cursor-not-allowed  hover:disabled:bg-white/5 hover:bg-white/10 h-full items-center w-full flex justify-center"
+        disabled={product.quantity <= 0}
+        className=" disabled:cursor-not-allowed disabled:bg-black/10  hover:disabled:bg-white/5 hover:bg-white/10 h-full items-center w-full flex justify-center"
       >
         <CgShoppingCart />
         {isAddingOrder && (
@@ -101,7 +108,13 @@ const Purchase = ({ product }: { product: productType }) => {
                   "w-full flex hover:bg-white/10 hover:rounded-md justify-between text-center"
                 }
               >
-                <div className="text-white rounded-l p-2 w-full grid place-items-center text-nowrap">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToBasket();
+                  }}
+                  className="text-white rounded-l p-2 w-full grid place-items-center text-nowrap"
+                >
                   تسویه و تکمیل خرید
                 </div>
               </section>
